@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
+using BitmapFrame = System.Windows.Media.Imaging.BitmapFrame;
 
 namespace OcrGetTextTool
 {
@@ -73,6 +74,51 @@ namespace OcrGetTextTool
             txtOcrResult.Text = (await RunOcr(sbitmap)).Text;
         }
 
+        /// <summary>
+        /// クリップボードにある画像を表示させる
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScreenButton_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapSource source = GetImageFromClipboardWithPNG();
+            if (source == null)
+            {
+                MessageBox.Show("クリップボード上に画像ねーじゃんか！\r\nよく確認しろや");
+            }
+            else
+            {
+
+                //画像ファイルの読み込み
+                ImgTarget.Source = BitmapFrame.Create(source);
+
+            }
+
+        }
+
+        /// <summary>
+        /// クリップボードからBitmapSourceを取り出して返す、PNG(アルファ値保持)形式に対応
+        /// </summary>
+        /// <returns></returns>
+        private BitmapSource GetImageFromClipboardWithPNG()
+        {
+            BitmapSource source = null;
+            //クリップボードにPNG形式のデータがあったら、それを使ってBitmapFrame作成して返す
+            //なければ普通にClipboardのGetImage、それでもなければnullを返す
+            using var ms = (System.IO.MemoryStream)Clipboard.GetData("PNG");
+            if (ms != null)
+            {
+                //source = BitmapFrame.Create(ms);//これだと取得できない
+                source = BitmapFrame.Create(ms, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+            }
+            else if (Clipboard.ContainsImage())
+            {
+                source = Clipboard.GetImage();
+            }
+            return source;
+        }
+
+        #region いずれここの部分は外部dllに移動させたい
         private async Task<SoftwareBitmap> ConvertSoftwareBitmap(Image image)
         {
             SoftwareBitmap sbitmap = null;
@@ -102,5 +148,6 @@ namespace OcrGetTextTool
             var result = await engine.RecognizeAsync(sbitmap);
             return result;
         }
+        #endregion  
     }
 }
