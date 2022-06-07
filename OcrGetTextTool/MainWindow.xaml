@@ -26,7 +26,12 @@
             <DockPanel>
                 <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges">
                     <ListBox>
-                        <ListBoxItem Content="GitHubSiteOpen" />
+                        <ListBoxItem Content="めにゅー"/>
+                        <ListBoxItem IsSelected="True">
+                            <Button x:Name="verWindow" 
+                                          Width="200" Height="40"
+                                          Click="verWindow_Click">バージョン情報</Button>
+                        </ListBoxItem>
                     </ListBox>
                 </materialDesign:PopupBox>
                 <StackPanel Orientation="Horizontal">
@@ -81,7 +86,9 @@
         <Image
             x:Name="ImgTarget"
             Grid.Row="2"
-            Margin="10,10,0,100" HorizontalAlignment="Left" Width="473" />
+            Margin="10,10,0,100" 
+            HorizontalAlignment="Left" 
+            Width="473" />
         <TextBox
             Name="txtOcrResult"
             Grid.Row="2"
@@ -97,12 +104,12 @@
             Margin="0,10,105,13" 
             Grid.Row="1" 
             BorderBrush="#FF3AB7A3" 
-            Background="#FF3AB7A3" 
+            Background="White" 
             FontSize="9.5" 
             FontStyle= "Normal" 
             HorizontalAlignment="Right" 
             Width="115" 
-            Cursor="Hand" Click="ScreenButton_Click" FontWeight="Medium" 
+            Cursor="Hand" Click="ScreenButton_Click" FontWeight="Medium" Foreground="#DD000000" 
             />
     </Grid>
 </Window>

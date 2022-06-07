@@ -25,11 +25,19 @@ namespace OcrGetTextTool
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowServiceClass _serviceClass; 
+
         public MainWindow()
         {
             InitializeComponent();
+            _serviceClass = new MainWindowServiceClass();
         }
 
+        /// <summary>
+        /// 「参照」ボタンを押したとき
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void btnPath_Click(object sender, RoutedEventArgs e)
         {
             ImgTarget.Source = null;
@@ -38,116 +46,86 @@ namespace OcrGetTextTool
             await Task.Delay(10);
 
             //画像ファイルのパスを取得
-            txtPath.Text = SelectPath();
+            txtPath.Text = _serviceClass.SelectPath();
 
             if (txtPath.Text != "")
             {
                 //画像ファイルの読み込み
-                ImgTarget.Source = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri(txtPath.Text, UriKind.Absolute), BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                ImgTarget.Source = BitmapFrame.Create(new Uri(txtPath.Text, UriKind.Absolute), 
+                                                                                  BitmapCreateOptions.None,
+                                                                                  BitmapCacheOption.OnLoad);
             }
-        }
-
-        private string SelectPath()
-        {
-            var path = "";
-
-            // ダイアログのインスタンスを生成
-            var dialog = new OpenFileDialog();
-
-            // ファイルの種類を設定
-            dialog.Filter = "Image File(*.bmp, *.jpg, *.png, *.tif) | *.bmp; *.jpg; *.png; *.tif | Bitmap(*.bmp) | *.bmp | Jpeg(*.jpg) | *.jpg | PNG(*.png) | *.png";
-
-            // ダイアログを表示する
-            if (dialog.ShowDialog() == true)
-            {
-                // 選択されたファイル名を取得
-                path = dialog.FileName;
-            }
-
-            return path;
-        }
-
-        private async void btnOcr_Click(object sender, RoutedEventArgs e)
-        {
-            //OCRの実行処理
-            var sbitmap = await ConvertSoftwareBitmap(ImgTarget);
-            txtOcrResult.Text = (await RunOcr(sbitmap)).Text;
         }
 
         /// <summary>
-        /// クリップボードにある画像を表示させる
+        ///     「OCR実行」ボタンを押したとき
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void btnOcr_Click(object sender, RoutedEventArgs e)
+        {
+            //左枠の画像がなければOCRは実行しない
+            if (ImgTarget.Source == null)
+                return;
+            
+            OcrLinkClass textTool = new OcrLinkClass();
+            try
+            {
+                //OCRの実行処理
+                var sbitmap = await textTool.ConvertSoftwareBitmap(ImgTarget);
+                txtOcrResult.Text = (await textTool.RunOcr(sbitmap)).Text;
+            }catch(Exception exe)
+            {
+                MessageBox.Show("エラーが発生しました!"+"\r\n" + exe.Message+"\r\n" + exe.InnerException,
+                                                "エラー", 
+                                                MessageBoxButton.OK,
+                                                MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 「クリップボードから貼付」を押したとき
+        /// クリップボードの画像を表示する
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ScreenButton_Click(object sender, RoutedEventArgs e)
         {
-            BitmapSource source = GetImageFromClipboardWithPNG();
+            BitmapSource source = _serviceClass.GetImageFromClipboardWithPNG();
             if (source == null)
             {
-                MessageBox.Show("クリップボード上に画像ねーじゃんか！\r\nよく確認しろや");
+                MessageBox.Show("クリップボード上に画像ねーじゃんか！\r\nよく確認しろや", 
+                                               "警告！！！",
+                                               MessageBoxButton.OK,
+                                               MessageBoxImage.Exclamation);
             }
             else
             {
-
                 //画像ファイルの読み込み
                 ImgTarget.Source = BitmapFrame.Create(source);
-
+                txtPath.Text = "クリップボードから貼付";
             }
-
         }
 
         /// <summary>
-        /// クリップボードからBitmapSourceを取り出して返す、PNG(アルファ値保持)形式に対応
+        /// 「バージョン情報」を押したとき
         /// </summary>
-        /// <returns></returns>
-        private BitmapSource GetImageFromClipboardWithPNG()
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void verWindow_Click(object sender, RoutedEventArgs e)
         {
-            BitmapSource source = null;
-            //クリップボードにPNG形式のデータがあったら、それを使ってBitmapFrame作成して返す
-            //なければ普通にClipboardのGetImage、それでもなければnullを返す
-            using var ms = (System.IO.MemoryStream)Clipboard.GetData("PNG");
-            if (ms != null)
-            {
-                //source = BitmapFrame.Create(ms);//これだと取得できない
-                source = BitmapFrame.Create(ms, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-            }
-            else if (Clipboard.ContainsImage())
-            {
-                source = Clipboard.GetImage();
-            }
-            return source;
+            string verText = "[文字認識ソフト]かみまみた！\r\n\r\n" +
+                                     "バージョン:   ";
+
+            //自分自身のAssemblyを取得
+            System.Reflection.Assembly asm =
+                System.Reflection.Assembly.GetExecutingAssembly();
+            //アセンブリバージョンの取得
+            System.Version ver = asm.GetName().Version;
+            verText += ver;
+
+
+            MessageBox.Show(verText, "バージョン情報", MessageBoxButton.OK);
         }
-
-        #region いずれここの部分は外部dllに移動させたい
-        private async Task<SoftwareBitmap> ConvertSoftwareBitmap(Image image)
-        {
-            SoftwareBitmap sbitmap = null;
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                //BmpBitmapEncoderに画像を書きこむ
-                var encoder = new BmpBitmapEncoder();
-                encoder.Frames.Add((System.Windows.Media.Imaging.BitmapFrame)image.Source);
-                encoder.Save(stream);
-
-                //メモリストリームを変換
-                var irstream = WindowsRuntimeStreamExtensions.AsRandomAccessStream(stream);
-
-                //画像データをSoftwareBitmapに変換
-                var decorder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(irstream);
-                sbitmap = await decorder.GetSoftwareBitmapAsync();
-            }
-
-            return sbitmap;
-        }
-
-        private async Task<OcrResult> RunOcr(SoftwareBitmap sbitmap)
-        {
-            //OCRを実行する
-            OcrEngine engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language("ja-JP"));
-            var result = await engine.RecognizeAsync(sbitmap);
-            return result;
-        }
-        #endregion  
     }
 }
