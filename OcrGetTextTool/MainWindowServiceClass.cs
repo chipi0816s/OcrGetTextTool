@@ -17,6 +17,8 @@ namespace OcrGetTextTool
     public class MainWindowServiceClass
     {
 
+        
+
         /// <summary>
         /// ダイアログから画像を取得する処理
         /// </summary>
@@ -61,6 +63,42 @@ namespace OcrGetTextTool
                 source = Clipboard.GetImage();
             }
             return source;
+        }
+
+        /// <summary>
+        /// ぐりぐりと動かした画像を初期値に戻す
+        /// </summary>
+        /// <param name="ImgTarget">初期値に戻したい画像</param>
+        public void ImgePositionReset(System.Windows.Controls.Image ImgTarget)
+        {
+            var matrix = ImgTarget.RenderTransform.Value;
+            matrix.M11 = 1.0;
+            matrix.M12 = 0.0;
+            matrix.M21 = 0.0;
+            matrix.M22 = 1.0;
+            matrix.OffsetX = 0.0;
+            matrix.OffsetY = 0.0;
+            ImgTarget.RenderTransform = new System.Windows.Media.MatrixTransform(matrix);
+        }
+
+
+        /// <summary>
+        /// バージョン情報ポップアップWindowに表示するテキストを作成する
+        /// </summary>
+        /// <returns>バージョン情報テキスト</returns>
+        public string verWindowText()
+        {
+            string verText = "[文字認識ソフト]かみまみた！\r\n\r\n" +
+                         "バージョン:   ";
+
+            //自分自身のAssemblyを取得
+            System.Reflection.Assembly asm =
+                System.Reflection.Assembly.GetExecutingAssembly();
+            //アセンブリバージョンの取得
+            System.Version ver = asm.GetName().Version;
+            verText += ver;
+
+            return verText;
         }
     }
 }
