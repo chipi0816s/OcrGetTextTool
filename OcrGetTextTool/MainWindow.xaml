@@ -10,7 +10,9 @@
     Width="805"
     Height="450"
     WindowStyle="ThreeDBorderWindow"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    KeyDown ="Window_KeyDown"
+    >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />

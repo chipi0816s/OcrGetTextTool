@@ -8,8 +8,8 @@
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIcon>icon.png</PackageIcon>
-    <AssemblyVersion>1.4</AssemblyVersion>
-    <FileVersion>1.4</FileVersion>
+    <AssemblyVersion>1.4.1</AssemblyVersion>
+    <FileVersion>1.4.1</FileVersion>
     <ApplicationIcon>icon\pien.ico</ApplicationIcon>
     <Product></Product>
     <AssemblyName>かみまみた</AssemblyName>

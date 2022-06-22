@@ -122,6 +122,35 @@ namespace OcrGetTextTool
         }
         #endregion
 
+
+        /// <summary>
+        /// キーボードショートカットを呼び出す
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            //Controlキー押してる最中
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                //Ctrl + O　ファイルから参照
+                if (e.Key == Key.O)
+                    _mainWindwSystem.btnPath(ImgTarget, txtPath);
+
+                //Ctrl + V　クリップボードから貼付け
+                if (e.Key == Key.V)
+                    _mainWindwSystem.ScreenButton(ImgTarget, txtPath);
+
+                //Ctrl + Enter   OCR実行
+                if (e.Key == Key.Enter)
+                    _mainWindwSystem.btnOcr(ImgTarget, txtOcrResult);
+
+                //Ctrl + R　画像の位置を元に戻す
+                if (e.Key == Key.R)
+                    _serviceClass.ImgePositionReset(ImgTarget);
+            }
+        }
+
         /// <summary>
         /// 「画像の位置を元に戻す」を押したとき
         /// </summary>
@@ -178,6 +207,8 @@ namespace OcrGetTextTool
                 ImgTarget.Source = BitmapFrame.Create(new Uri(txtPath.Text, UriKind.Absolute),
                                                                                   BitmapCreateOptions.None,
                                                                                   BitmapCacheOption.OnLoad);
+                //位置は初期化する
+                _serviceClass.ImgePositionReset(ImgTarget);
             }
         }
 
@@ -227,6 +258,8 @@ namespace OcrGetTextTool
             {
                 //画像ファイルの読み込み
                 ImgTarget.Source = BitmapFrame.Create(source);
+                //位置は初期化する
+                _serviceClass.ImgePositionReset(ImgTarget);
                 txtPath.Text = "クリップボードから貼付";
             }
         }
