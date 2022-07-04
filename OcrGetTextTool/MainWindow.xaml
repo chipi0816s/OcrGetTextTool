@@ -57,10 +57,10 @@
                     </ListBox>
                 </materialDesign:PopupBox>
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon
+                    <Image
                         Width="26"
-                        Height="26"
-                        Kind="Ocr" />
+                        Height="26" 
+                        Source="/pose_pien_uruuru_woman.png"/>
                     <TextBlock
                         Margin="16,0,0,0"
                         VerticalAlignment="Center"

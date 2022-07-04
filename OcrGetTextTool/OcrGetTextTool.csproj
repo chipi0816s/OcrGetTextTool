@@ -16,11 +16,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="pose_pien_uruuru_woman.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="icon\pien.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="pose_pien_uruuru_woman.png" />
   </ItemGroup>
 
   <ItemGroup>
